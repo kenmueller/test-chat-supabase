@@ -1,6 +1,7 @@
 import { type EmailOtpType } from '@supabase/supabase-js'
 import { type NextRequest } from 'next/server'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 
 import createSupabaseServerClient from '@/lib/supabase/server'
 
@@ -22,6 +23,7 @@ export const GET = async (request: NextRequest) => {
 
 			if (error) throw error
 
+			revalidatePath('/', 'layout')
 			redirect(next)
 		}
 	} catch (error) {

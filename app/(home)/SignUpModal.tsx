@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { ReactNode, useState } from 'react'
 import {
 	Dialog,
 	DialogContent,
@@ -11,17 +11,13 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { login } from '@/app/login/actions'
+import { signUp } from './actions'
 
-interface SignInModalProps {
-	children: React.ReactNode
-}
-
-export function SignInModal({ children }: SignInModalProps) {
+const SignUpModal = ({ children }: { children: ReactNode }) => {
 	const [open, setOpen] = useState(false)
 
 	const handleSubmit = async (formData: FormData) => {
-		await login(formData)
+		// await signup(formData)
 		setOpen(false)
 	}
 
@@ -30,13 +26,23 @@ export function SignInModal({ children }: SignInModalProps) {
 			<DialogTrigger asChild>{children}</DialogTrigger>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle>Sign In</DialogTitle>
+					<DialogTitle>Sign Up</DialogTitle>
 				</DialogHeader>
 				<form action={handleSubmit} className="space-y-4">
 					<div className="space-y-2">
-						<Label htmlFor="signin-email">Email</Label>
+						<Label htmlFor="signup-username">Username</Label>
 						<Input
-							id="signin-email"
+							id="signup-username"
+							name="username"
+							type="text"
+							placeholder="Enter your username"
+							required
+						/>
+					</div>
+					<div className="space-y-2">
+						<Label htmlFor="signup-email">Email</Label>
+						<Input
+							id="signup-email"
 							name="email"
 							type="email"
 							placeholder="Enter your email"
@@ -44,9 +50,9 @@ export function SignInModal({ children }: SignInModalProps) {
 						/>
 					</div>
 					<div className="space-y-2">
-						<Label htmlFor="signin-password">Password</Label>
+						<Label htmlFor="signup-password">Password</Label>
 						<Input
-							id="signin-password"
+							id="signup-password"
 							name="password"
 							type="password"
 							placeholder="Enter your password"
@@ -55,7 +61,7 @@ export function SignInModal({ children }: SignInModalProps) {
 					</div>
 					<div className="space-y-3">
 						<Button type="submit" className="w-full">
-							Sign In
+							Sign Up
 						</Button>
 						<Button
 							type="button"
@@ -70,3 +76,5 @@ export function SignInModal({ children }: SignInModalProps) {
 		</Dialog>
 	)
 }
+
+export default SignUpModal
