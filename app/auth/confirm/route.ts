@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
 import createSupabaseServerClient from '@/lib/supabase/server'
+import { ServerActionError } from '@/lib/serverAction/server'
 
 export const GET = async (request: NextRequest) => {
 	try {
@@ -13,24 +14,28 @@ export const GET = async (request: NextRequest) => {
 		const type = searchParams.get('type') as EmailOtpType | null
 		const next = searchParams.get('next') ?? '/'
 
-		if (tokenHash && type) {
-			const supabase = await createSupabaseServerClient()
-
-			const { error } = await supabase.auth.verifyOtp({
-				type,
-				token_hash: tokenHash
-			})
-
-			if (error) throw error
-
-			revalidatePath('/', 'layout')
-			redirect(next)
+		if (!(tokenHash && type)) {
+			throw new ServerActionError('Invalid request')
 		}
-	} catch (error) {
-		console.error('Email confirmation error:', error)
 
-		redirect(
-			`/error?${new URLSearchParams({ message: 'Email confirmation failed' })}`
-		)
+		const supabase = await createSupabaseServerClient()
+
+		const { error } = await supabase.auth.verifyOtp({
+			type,
+			token_hash: tokenHash
+		})
+
+		if (error) throw new ServerActionError(error)
+
+		revalidatePath('/', 'layout')
+		redirect(next)
+	} catch (error) {
+		if (error instanceof ServerActionError) {
+			redirect(
+				`/error?${new URLSearchParams({ message: error.message })}`
+			)
+		}
+
+		throw error
 	}
 }

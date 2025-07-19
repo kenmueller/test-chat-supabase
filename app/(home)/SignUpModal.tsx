@@ -18,16 +18,23 @@ import { redirect } from 'next/navigation'
 import { Spinner } from '@/components/ui/shadcn-io/spinner'
 
 const SignUpModal = ({ children }: { children: ReactNode }) => {
+	const nameId = useId()
 	const usernameId = useId()
 	const emailId = useId()
 	const passwordId = useId()
 
 	const [isOpen, setIsOpen] = useState(false)
 	const [isLoading, setIsLoading] = useState(false)
+	const [name, setName] = useState('')
 	const [username, setUsername] = useState('')
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [submitError, setSubmitError] = useState<string | null>(null)
+
+	const nameError =
+		name && !signUpSchema.shape.name.safeParse(name).success
+			? 'Name is required'
+			: null
 
 	const usernameError =
 		username && !signUpSchema.shape.username.safeParse(username).success
@@ -45,9 +52,11 @@ const SignUpModal = ({ children }: { children: ReactNode }) => {
 			: null
 
 	const isValid =
+		name &&
 		username &&
 		email &&
 		password &&
+		!nameError &&
 		!usernameError &&
 		!emailError &&
 		!passwordError
@@ -61,7 +70,7 @@ const SignUpModal = ({ children }: { children: ReactNode }) => {
 				setIsLoading(true)
 				setSubmitError(null)
 
-				await signUp({ username, email, password })
+				await signUp({ name, username, email, password })
 
 				redirect('/messages')
 			} catch (error) {
@@ -72,7 +81,7 @@ const SignUpModal = ({ children }: { children: ReactNode }) => {
 				setIsLoading(false)
 			}
 		},
-		[username, email, password, isValid]
+		[name, username, email, password, isValid]
 	)
 
 	const onIsOpenChange = useCallback(
@@ -83,6 +92,7 @@ const SignUpModal = ({ children }: { children: ReactNode }) => {
 				if (!newIsOpen) {
 					// Reset form when closing
 
+					setName('')
 					setUsername('')
 					setEmail('')
 					setPassword('')
@@ -102,7 +112,31 @@ const SignUpModal = ({ children }: { children: ReactNode }) => {
 				</DialogHeader>
 				<form onSubmit={onSubmit} className="space-y-4">
 					<div className="space-y-2">
-						<Label htmlFor={usernameId}>Username</Label>
+						<Label htmlFor={nameId}>Name</Label>
+						<Input
+							id={nameId}
+							name="name"
+							type="text"
+							placeholder="Enter your name"
+							value={name}
+							onChange={event => {
+								setName(event.target.value)
+							}}
+							className={clsx(
+								nameError && 'border-red-500 focus:ring-red-500'
+							)}
+							required
+							disabled={isLoading}
+						/>
+						{nameError && (
+							<p className="text-sm text-red-500">{nameError}</p>
+						)}
+					</div>
+					<div className="space-y-2">
+						<Label htmlFor={usernameId}>
+							Username{' '}
+							<span className="text-gray-500">(unique)</span>
+						</Label>
 						<Input
 							id={usernameId}
 							name="username"

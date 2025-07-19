@@ -31,7 +31,7 @@ export const signUp = createServerAction(async (unsafeData: SignUpSchema) => {
 	const { error } = await supabase.auth.signUp({
 		email: data.email,
 		password: data.password,
-		options: { data: { username: data.username } }
+		options: { data: { name: data.name, username: data.username } }
 	})
 
 	if (error) throw new ServerActionError(error)

@@ -1,6 +1,7 @@
 'use client'
 
 import { ReactNode, useState, useCallback, FormEvent, useId } from 'react'
+import { useRouter } from 'next/navigation'
 import {
 	Dialog,
 	DialogContent,
@@ -14,11 +15,11 @@ import { Label } from '@/components/ui/label'
 import { signIn } from './actions'
 import { signInSchema } from './schemas'
 import clsx from 'clsx'
-import { useRouter } from 'next/navigation'
 import { Spinner } from '@/components/ui/shadcn-io/spinner'
 
 const SignInModal = ({ children }: { children: ReactNode }) => {
 	const router = useRouter()
+
 	const emailId = useId()
 	const passwordId = useId()
 
@@ -50,7 +51,7 @@ const SignInModal = ({ children }: { children: ReactNode }) => {
 
 				await signIn({ email, password })
 
-				redirect('/messages')
+				router.push('/messages')
 			} catch (error) {
 				setSubmitError(
 					error instanceof Error ? error.message : 'Unknown error'
@@ -59,7 +60,7 @@ const SignInModal = ({ children }: { children: ReactNode }) => {
 				setIsLoading(false)
 			}
 		},
-		[email, password, isValid]
+		[email, password, isValid, router]
 	)
 
 	const onIsOpenChange = useCallback(
