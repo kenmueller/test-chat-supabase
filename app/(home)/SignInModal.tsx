@@ -14,10 +14,11 @@ import { Label } from '@/components/ui/label'
 import { signIn } from './actions'
 import { signInSchema } from './schemas'
 import clsx from 'clsx'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Spinner } from '@/components/ui/shadcn-io/spinner'
 
 const SignInModal = ({ children }: { children: ReactNode }) => {
+	const router = useRouter()
 	const emailId = useId()
 	const passwordId = useId()
 
@@ -61,19 +62,25 @@ const SignInModal = ({ children }: { children: ReactNode }) => {
 		[email, password, isValid]
 	)
 
-	const handleClose = (newOpen: boolean) => {
-		if (!isLoading) {
-			setIsOpen(newOpen)
-			if (!newOpen) {
-				// Reset form when closing
-				setEmail('')
-				setPassword('')
+	const onIsOpenChange = useCallback(
+		(newIsOpen: boolean) => {
+			if (!isLoading) {
+				setIsOpen(newIsOpen)
+
+				if (!newIsOpen) {
+					// Reset form when closing
+
+					setEmail('')
+					setPassword('')
+					setSubmitError(null)
+				}
 			}
-		}
-	}
+		},
+		[isLoading]
+	)
 
 	return (
-		<Dialog open={isOpen} onOpenChange={handleClose}>
+		<Dialog open={isOpen} onOpenChange={onIsOpenChange}>
 			<DialogTrigger asChild>{children}</DialogTrigger>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
